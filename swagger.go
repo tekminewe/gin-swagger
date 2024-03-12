@@ -37,6 +37,7 @@ type Config struct {
 	DeepLinking              bool
 	PersistAuthorization     bool
 	Oauth2DefaultClientID    string
+	SwaggerIndexTemplate     string
 }
 
 func (config Config) toSwaggerConfig() swaggerConfig {
@@ -117,6 +118,7 @@ func WrapHandler(handler *webdav.Handler, options ...func(*Config)) gin.HandlerF
 		DeepLinking:              true,
 		PersistAuthorization:     false,
 		Oauth2DefaultClientID:    "",
+		SwaggerIndexTemplate:     "",
 	}
 
 	for _, c := range options {
@@ -138,8 +140,12 @@ func CustomWrapHandler(config *Config, handler *webdav.Handler) gin.HandlerFunc 
 		config.Title = "Swagger UI"
 	}
 
+	if config.SwaggerIndexTemplate == "" {
+		config.SwaggerIndexTemplate = swaggerIndexTpl
+	}
+
 	// create a template with name
-	index, _ := htmlTemplate.New("swagger_index.html").Parse(swaggerIndexTpl)
+	index, _ := htmlTemplate.New("swagger_index.html").Parse(config.SwaggerIndexTemplate)
 	js, _ := textTemplate.New("swagger_index.js").Parse(swaggerJSTpl)
 	css, _ := textTemplate.New("swagger_index.css").Parse(swaggerStyleTpl)
 
